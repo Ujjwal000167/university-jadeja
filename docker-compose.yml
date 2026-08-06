@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: jadeja-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: meetesh
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: jadeja-project
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: jadeja-backend
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://meetesh:1234@db:5432/jadeja-project?schema=public
+      JWT_SECRET: jadeja-super-secret-change-me
+      PORT: 4000
+      FRONTEND_URL: http://localhost:5173
+      NODE_ENV: production
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: jadeja-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+

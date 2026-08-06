@@ -12,6 +12,22 @@ Three-tier university LMS:
 
 ## Quick Start
 
+### Docker
+
+Build and start everything with:
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:4000/api/v1/health`
+- Postgres: `localhost:5432`
+
+The compose file starts Postgres, runs Prisma migrations in the backend container, and serves the built frontend through Nginx.
+
 ### 1. Start PostgreSQL in Docker
 
 If the container does not exist yet:

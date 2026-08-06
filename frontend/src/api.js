@@ -6,7 +6,8 @@ function getToken() {
 
 export async function apiFetch(path, options = {}) {
   const token = getToken();
-  const res = await fetch(`${BASE}${path}`, {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+  const res = await fetch(`${baseUrl}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
