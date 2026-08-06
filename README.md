@@ -14,6 +14,16 @@ Three-tier university LMS:
 
 ### Docker
 
+For EC2, create a `.env` in the repo root first:
+
+```env
+DATABASE_URL=postgresql://meetesh:1234@db:5432/jadeja-project?schema=public
+JWT_SECRET=replace-with-a-strong-secret
+BACKEND_PORT=4000
+FRONTEND_PORT=80
+FRONTEND_URL=http://YOUR_EC2_PUBLIC_IP_OR_DOMAIN
+```
+
 Build and start everything with:
 
 ```bash
@@ -22,11 +32,11 @@ docker compose up --build
 
 Then open:
 
-- Frontend: `http://localhost:5173`
+- Frontend: `http://YOUR_EC2_PUBLIC_IP_OR_DOMAIN`
 - Backend: `http://localhost:4000/api/v1/health`
 - Postgres: `localhost:5432`
 
-The compose file starts Postgres, runs Prisma migrations in the backend container, and serves the built frontend through Nginx.
+The compose file starts Postgres, runs Prisma migrations in the backend container, proxies API requests through Nginx, and serves the built frontend on port 80.
 
 ### 1. Start PostgreSQL in Docker
 
