@@ -27,5 +27,4 @@ USER node
 
 EXPOSE 4000
 
-ENTRYPOINT ["node", "docker-entrypoint.js"]
-
+CMD ["sh", "-c", "npx prisma migrate deploy && node src/index.js"]
