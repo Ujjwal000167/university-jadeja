@@ -21,7 +21,6 @@ COPY --from=build /usr/lib/libssl.so* /usr/lib/libcrypto.so* /usr/lib/
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/prisma ./prisma
-COPY --chown=node:node docker-entrypoint.js ./
 
 USER node
 
