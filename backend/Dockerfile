@@ -1,26 +1,28 @@
-FROM dhi.io/node:22-alpine-dev AS build
-
-WORKDIR /app
-
+# Stage 1: Install all dependencies
+FROM dhi.io/node:24-alpine-dev AS deps
 RUN apk add --no-cache openssl
-
+WORKDIR /app
 COPY package*.json ./
-COPY prisma ./prisma
-
 RUN npm ci
+
+# Stage 2: Generate Prisma client + bundle app code
+FROM deps AS build
+COPY . .
 RUN npx prisma generate
+RUN npm run build
 
-COPY src ./src
-
-FROM dhi.io/node:22-alpine-dev
-
+# Stage 3: Production image (non-dev, nonroot runtime)
+FROM dhi.io/node:24-alpine AS production
 WORKDIR /app
-
-RUN apk add --no-cache openssl
-
-COPY --from=build /app /app
-
+ENV NODE_ENV=production
+# Prisma's query engine dynamically links against OpenSSL; the non-dev
+# runtime has no package manager, so copy the shared libs from the dev
+# build stage instead of `apk add openssl`.
+COPY --from=build /usr/lib/libssl.so* /usr/lib/libcrypto.so* /usr/lib/
+COPY --from=build --chown=node:node /app/dist ./dist
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/prisma ./prisma
+COPY --chown=node:node docker-entrypoint.js ./
+USER node
 EXPOSE 4000
-
-CMD ["sh", "-c", "npx prisma migrate deploy && node src/index.js"]
-
+ENTRYPOINT ["node", "docker-entrypoint.js"]
