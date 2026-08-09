@@ -1,6 +1,6 @@
 # Stage 1: Install all dependencies
 FROM dhi.io/node:24-alpine-dev AS deps
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl=3.0.14-r0
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -8,8 +8,7 @@ RUN npm ci
 # Stage 2: Generate Prisma client + bundle app code
 FROM deps AS build
 COPY . .
-RUN npx prisma generate
-RUN npm run build
+RUN npx prisma generate && npm run build
 
 # Stage 3: Production image (non-dev, nonroot runtime)
 FROM dhi.io/node:24-alpine AS production
