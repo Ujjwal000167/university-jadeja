@@ -36,7 +36,7 @@ jobs:
         working-directory: ${{ matrix.image }}
 
       - name: Trivy scan
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ vars.DOCKER_USERNAME }}/university-${{ matrix.image }}:latest
           format: table
