@@ -1,6 +1,6 @@
 name: leaks
 on: 
-    workflow_dispatch:
+    workflow_call:
 
 jobs: 
     leaks: 
