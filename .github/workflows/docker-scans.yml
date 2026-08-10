@@ -1,14 +1,7 @@
 name: Docker Scan
 
 on:
-  push:
-    branches:
-      - main
-      - ujjwal000167-containerize-project
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+   workflow_dispatch: 
 
 jobs:
   docker-scan:
