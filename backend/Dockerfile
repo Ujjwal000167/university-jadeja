@@ -1,13 +1,12 @@
-FROM dhi.io/node:24-alpine-dev AS deps
-
-RUN apk add --no-cache openssl=3.0.14-r0
+FROM dhi.io/node:24-alpine-dev AS build
 
 WORKDIR /app
 
+# Copy package files early for layer caching
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --omit=dev
 
-FROM deps AS build
+# Copy source and build
 COPY . .
 RUN npx prisma generate && npm run build
 
@@ -16,14 +15,17 @@ FROM dhi.io/node:24-alpine AS production
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Prisma query engine dynamically links against OpenSSL.
-COPY --from=build /usr/lib/libssl.so* /usr/lib/libcrypto.so* /usr/lib/
 COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/prisma ./prisma
+COPY --from=build --chown=node:node /app/package*.json ./
 
-USER 1000
+USER node
 
 EXPOSE 4000
 
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:4000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+
 CMD ["sh", "-c", "npx prisma migrate deploy && node src/index.js"]
+
