@@ -6,18 +6,18 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 
-# Copy source and build
+# Copy source and prisma schema
 COPY . .
-RUN npx prisma generate && npm run build
+RUN npx prisma generate
 
 FROM dhi.io/node:24-alpine AS production
 
 WORKDIR /app
 ENV NODE_ENV=production
 
-COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/prisma ./prisma
+COPY --from=build --chown=node:node /app/src ./src
 COPY --from=build --chown=node:node /app/package*.json ./
 
 USER node
