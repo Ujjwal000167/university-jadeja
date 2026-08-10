@@ -22,7 +22,7 @@ COPY --from=build --chown=node:node /app/dist ./dist
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/prisma ./prisma
 
-USER node
+USER 1000
 
 EXPOSE 4000
 
